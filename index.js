@@ -3,7 +3,7 @@ const app = express()
 const cors = require("cors")
 require("dotenv").config()
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require("jsonwebtoken")
 
 app.use(cors())
@@ -79,6 +79,31 @@ async function run() {
                 query = { sellerEmail: req?.query?.email }
             }
             const result = await productCollection.find(query).toArray();
+            res.send(result);
+        })
+        app.get("/updateGetProduct/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await productCollection.find(query).toArray();
+            res.send(result);
+        })
+        app.patch("/updateproduct/:id", TokenVerify, async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const updatedData = {
+                $set: {
+                    productName: data.productName,
+                    sellerName: data.sellerName,
+                    sellerEmail: data.sellerEmail,
+                    availableProduct: parseInt(data.availableProduct),
+                    price: parseInt(data.price),
+                    description: data.description,
+                    discount: parseInt(data.discount)
+                }
+            }
+            const result = await productCollection.updateOne(query, updatedData);
+            console.log(result)
             res.send(result);
         })
 
