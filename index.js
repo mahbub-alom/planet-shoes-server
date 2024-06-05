@@ -39,11 +39,26 @@ async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
-
+        const indexKeys = { productName: 1 };
+        const indexOptions = { name: "productName" };
         const userCollection = client.db("planetshoes").collection("user")
         const productCollection = client.db("planetshoes").collection("product")
 
 
+        //searching
+        app.get('/searchProduct/:text', async (req, res) => {
+            const searchText = req.params.text;
+            const result = await productCollection.find({
+                $or: [
+                    { productName: { $regex: searchText, $options: "i" } },
+                ]
+            }).toArray();
+            res.send(result);
+        })
+
+
+
+        //jwt
         app.post("/jwt", async (req, res) => {
             const userData = req.body;
             const token = jwt.sign(userData, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" })
