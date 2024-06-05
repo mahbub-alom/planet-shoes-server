@@ -63,6 +63,24 @@ async function run() {
             res.send(result)
         })
 
+        app.get("/user", TokenVerify, async (req, res) => {
+            if (req?.query?.email !== req?.decoded?.email) {
+                return res.status(403).send({ message: "unauthorized access" })
+            }
+            let query = {}
+            if (req?.query?.email) {
+                query = { email: req?.query?.email }
+            }
+            const result = await userCollection.find(query).toArray();
+            res.send(result);
+        })
+
+        app.get("/updateUserInfo/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await userCollection.find(query).toArray();
+            res.send(result);
+        })
 
         //product related api
         app.post("/addproduct", TokenVerify, async (req, res) => {
