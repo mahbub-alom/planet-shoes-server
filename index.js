@@ -85,6 +85,11 @@ async function run() {
             res.send(result)
         })
 
+        app.get("/bestseller", async (req, res) => {
+            const result = await userCollection.find().toArray()
+            res.send(result)
+        })
+
         app.get("/user", TokenVerify, async (req, res) => {
             if (req?.query?.email !== req?.decoded?.email) {
                 return res.status(403).send({ message: "unauthorized access" })
