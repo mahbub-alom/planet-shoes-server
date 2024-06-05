@@ -43,7 +43,14 @@ async function run() {
         const indexOptions = { name: "productName" };
         const userCollection = client.db("planetshoes").collection("user")
         const productCollection = client.db("planetshoes").collection("product")
+        const reviewsCollection = client.db("planetshoes").collection("reviews")
 
+
+
+        app.get("/reviews", async (req, res) => {
+            const result = await reviewsCollection.find().toArray()
+            res.send(result)
+        })
 
         //searching
         app.get('/searchProduct/:text', async (req, res) => {
@@ -163,6 +170,11 @@ async function run() {
             const query = { _id: new ObjectId(id) }
             const result = await productCollection.deleteOne(query)
             res.send(result);
+        })
+
+        app.get("/allproduct", async (req, res) => {
+            const result = await productCollection.find().toArray()
+            res.send(result)
         })
 
 
