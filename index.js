@@ -82,6 +82,25 @@ async function run() {
             res.send(result);
         })
 
+        app.put("/updateUser/:id", TokenVerify, async (req, res) => {
+            const data = req.body;
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const updatedData = {
+                $set: {
+                    name: data.userName,
+                    userPhone: data.userPhone,
+                    email: data.userEmail,
+                    userAddress: data.userAddress,
+                }
+            }
+            const result = await userCollection.updateOne(query, updatedData, options);
+
+            res.send(result);
+
+        })
+
         //product related api
         app.post("/addproduct", TokenVerify, async (req, res) => {
             const data = req.body;
@@ -124,7 +143,7 @@ async function run() {
             res.send(result);
         })
 
-        app.delete("/deleteproduct/:id", TokenVerify ,async (req, res) => {
+        app.delete("/deleteproduct/:id", TokenVerify, async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await productCollection.deleteOne(query)
