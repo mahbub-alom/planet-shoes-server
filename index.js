@@ -12,12 +12,12 @@ app.use(express.json())
 const TokenVerify = (req, res, next) => {
     const authorization = req.headers.authorization;
     if (!authorization) {
-        return res.status(401).send({ message: "unauthorized access" })
+        return res.status(401).send({ message: "unauthorized access1" })
     }
     const token = authorization.split(" ")[1]
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
-            return res.status(401).send({ message: "unauthorized access" })
+            return res.status(401).send({ message: "unauthorized access2" })
         }
         req.decoded = decoded
         next();
@@ -41,6 +41,7 @@ async function run() {
         await client.connect();
 
         const userCollection = client.db("planetshoes").collection("user")
+        const productCollection = client.db("planetshoes").collection("product")
 
 
         app.post("/jwt", async (req, res) => {
@@ -60,6 +61,25 @@ async function run() {
             }
             const result = await userCollection.insertOne(user)
             res.send(result)
+        })
+
+
+        //product related api
+        app.post("/addproduct", TokenVerify, async (req, res) => {
+            const data = req.body;
+            const result = await productCollection.insertOne(data)
+            res.send(result)
+        })
+        app.get("/getproduct", TokenVerify, async (req, res) => {
+            if (req?.query?.email !== req?.decoded?.email) {
+                return res.status(403).send({ message: "unauthorized access" })
+            }
+            let query = {}
+            if (req?.query?.email) {
+                query = { sellerEmail: req?.query?.email }
+            }
+            const result = await productCollection.find(query).toArray();
+            res.send(result);
         })
 
 
